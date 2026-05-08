@@ -118,15 +118,17 @@ for idx, k_pos in enumerate(full_path):
 
 
 
-#能带偏移修正
-# 计算 M_vec (即 mBZ 中心) 处的哈密顿量，找到平带的中点
-H_ref = build_hamiltonian(M_vec[0], M_vec[1])
-ref_eigvals = np.linalg.eigvalsh(H_ref)
-# 找到最靠近 0 的两个值的平均值（假设它们是平带）
-mid_index = len(ref_eigvals) // 2
-E_offset = (ref_eigvals[mid_index] + ref_eigvals[mid_index-1]) / 2
+# ================= 能带偏移修正 (以 K_vec 狄拉克点为基准) =================
+# 在莫尔狄拉克点 K_vec 处计算哈密顿量
+H_ref = build_hamiltonian(K_vec[0], K_vec[1])
+ref_eigvals = np.real(np.linalg.eigvalsh(H_ref))
 
-# 在绘图前减去这个偏移
+# 寻找距离 0 最近的能级。由于此处两条平带发生狄拉克简并，
+# 这个能量值就是最完美的电荷中性点 (CNP) 参考零点。
+zero_idx = np.argmin(np.abs(ref_eigvals))
+E_offset = ref_eigvals[zero_idx]
+
+# 将所有计算出的能带减去狄拉克点的能量
 E = E - E_offset
 
 # ================= 4. 绘图 =================
